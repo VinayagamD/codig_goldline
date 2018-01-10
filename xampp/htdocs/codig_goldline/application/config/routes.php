@@ -56,5 +56,5 @@ $route['lead-generation']= 'home/lead_generation';
 $route['lead-management']= 'home/lead_management';
 $route['hr']= 'home/hr';
 $route['logistics']= 'home/logistics';
-$route['contact-us']= 'home/contact_us';
-$route['save-enquiry']= 'home/save_enquiry';
+$route['contact-us']['get']= 'home/contact_us';
+$route['contact-us']['post']= 'home/save_enquiry';

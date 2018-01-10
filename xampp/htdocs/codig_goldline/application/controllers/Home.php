@@ -3,7 +3,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * Created by PhpStorm.
- * User: vinaylogics
  * Date: 1/5/2018
  * Time: 10:55 PM
  */
@@ -44,7 +43,14 @@ class Home extends CI_Controller
     }
 
     public function contact_us(){
-
+        $error = $this->session->flashdata('error');
+        $success = $this->session->flashdata('sucess');
+        if ($error) {
+            $data['error'] =$error;
+        }
+        if ($success){
+            $data['success']=$success;
+        }
             $data['title'] = 'Contact Us';
             $data['view'] = 'home/contact_us';
             $this->load->view('layout/layout_contact', $data);
@@ -69,7 +75,8 @@ class Home extends CI_Controller
             $this->load->model("enquiry_model");
             $data = $this->enquiry_model->save_enquiry($data);
             if (isset($data)){
-                $this->send_office_email($data);
+                $message = "Successfully saved enquiry.\n";
+                $this->send_office_email($data,$message);
             }else{
                 $this->session->set_flashdata('error', 'Unable place your enquiry please try after sometime');
                 redirect('contact-us','refresh' );
@@ -82,7 +89,7 @@ class Home extends CI_Controller
 
     }
 
-    public function send_customer_email($data){
+    public function send_customer_email($data,$message){
         $this->setup_email_config();
         $this->email->from('contact@goldenbridge.co.in', 'Golden Bridge Business Solutions');
         $this->email->subject('Enquiry Confirmation');
@@ -97,36 +104,36 @@ class Home extends CI_Controller
         $this->email->set_newline("\r\n");
         $this->email->set_mailtype('html');
         if ($this->email->send()){
-            $message="Email sent Successful";
+            $message=$message."Notified Your Email sent Successful";
+            $this->session->set_flashdata('success', $message);
         }else{
-            $message="Email unsuccessful contact admin".$this->email->print_debugger();;
+            $error="Notification Email  unsuccessful contact admin".$this->email->print_debugger();;
             echo 'message';
+            $this->session->set_flashdata('error',$error);
         }
-        $this->session->set_flashdata('user_id',$data['id']);
-        $this->session->set_flashdata('message', $message);
-        redirect('contact-us','refresh' );
+
+        $this->contact_us();
 
     }
 
-    public function send_office_email($data){
+    public function send_office_email($data,$message){
         $this->setup_email_config();
         $this->email->from('contact@goldenbridge.co.in', 'Golden Bridge Business Solutions');
         $this->email->reply_to($data['email'], $data['first_name']);
         $this->email->subject( $data['subject']);
         $this->email->to('contact@goldenbridge.co.in');
-        $this->email->message("From:".$data['email'].", Name: ".$data['first_name']."<br> Message :".$data["message"]);
+        $this->email->message($data["message"]);
 
         $this->email->set_newline("\r\n");
         $this->email->set_mailtype('html');
         if ($this->email->send()){
-            $message="Email sent Successful";
-            $this->send_customer_email($data);
+            $this->send_customer_email($data,$message);
         }else{
-            $message="Email unsuccessful contact admin".$this->email->print_debugger();;
-            $this->session->set_flashdata('user_id',$data['id']);
-            $this->session->set_flashdata('message', $message);
-            redirect('contact-us','refresh' );
+            $error="Email unsuccessful contact admin".$this->email->print_debugger();;
+            $this->session->set_flashdata('error', $error);
+
         }
+        $this->contact_us();
 
     }
 

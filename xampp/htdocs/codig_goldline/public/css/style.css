@@ -1,0 +1,10 @@
+html,body{
+    font-family: "Bookman Old Style";
+}
+
+.gold-text{
+   color: #ffdf32;
+}
+.text-justify{
+    text-align: justify
+}
